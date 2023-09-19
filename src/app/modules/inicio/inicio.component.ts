@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { InicioService } from './service/inicio.service';
+import { InicioService } from './inicio.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Digimon } from 'src/app/interfaces/digimon/digimon.interface';
 

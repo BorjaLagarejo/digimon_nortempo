@@ -9,15 +9,27 @@ import { DigimonApiService } from 'src/app/services/digimons.service';
 export class InicioService {
     private _digimonRandom: BehaviorSubject<Digimon | null> = new BehaviorSubject<Digimon | null>(null);
 
+    /*
+    -------------------------------------------------------------------
+        CONSTRUCTOR
+    -------------------------------------------------------------------
+    */
     constructor(private _digimonApiService: DigimonApiService) {}
 
-    /**
-     * Getter for categories
-     */
+    /*
+    -------------------------------------------------------------------
+        GET
+    -------------------------------------------------------------------
+    */
     get digimonRandom$() {
         return this._digimonRandom.asObservable();
     }
 
+    /*
+    -------------------------------------------------------------------
+        METODOS PUBLICOS
+    -------------------------------------------------------------------
+    */
     public getRandomDigimon() {
         const idRandom = this.generarIdDigimonRandom();
 

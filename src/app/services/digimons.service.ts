@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Digimon } from '../interfaces/digimon/digimon.interface';
@@ -16,10 +16,17 @@ export class DigimonApiService {
      *
      * @returns
      */
-    public getDigimonList() {
+    public getDigimonList(
+        filtros: paramsFilterDigimons = {
+            page: 0,
+            pageSize: 10
+        }
+    ) {
         const url = `${this.apiHost}/digimon`;
 
-        return this._http.get(url);
+        const params = new HttpParams().set('page', filtros.page).set('pageSize', filtros.pageSize);
+
+        return this._http.get(url, { params });
     }
 
     /**
@@ -148,4 +155,9 @@ export class DigimonApiService {
 
         return this._http.get(url);
     }
+}
+
+interface paramsFilterDigimons {
+    page: number;
+    pageSize: number;
 }
