@@ -8,11 +8,16 @@ import { BuscarDigimonDetalleComponent } from './detalle/detalle.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { buscarDigimonListaResolver } from './lista/lista.resolver';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 export const buscarDigimonRoute: Route[] = [
     {
         path: '',
-        component: BuscarDigimonListaComponent
+        component: BuscarDigimonListaComponent,
+        resolve: {
+            lista: buscarDigimonListaResolver
+        }
     },
     {
         path: ':id',
@@ -25,6 +30,10 @@ export const buscarDigimonRoute: Route[] = [
     imports: [
         CommonModule,
         RouterModule.forChild(buscarDigimonRoute),
+
+        FormsModule,
+        ReactiveFormsModule,
+
         MatInputModule,
         MatTableModule,
         MatPaginatorModule

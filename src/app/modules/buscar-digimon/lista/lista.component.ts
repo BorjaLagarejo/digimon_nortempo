@@ -1,20 +1,28 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource, MatTableDataSourcePaginator } from '@angular/material/table';
 import { BuscarDigimonListaService } from './lista.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, debounceTime, map, merge, of, startWith, switchMap, takeUntil } from 'rxjs';
+import { ContentDigimons, Pageable } from 'src/app/interfaces/digimon/digimons.interface';
+import { HttpParams } from '@angular/common/http';
+import { FormControl } from '@angular/forms';
 
 @Component({
     templateUrl: './lista.component.html',
     styleUrls: ['./lista.component.scss']
 })
-export class BuscarDigimonListaComponent implements OnInit, OnDestroy {
-    @ViewChild(MatPaginator) paginator: MatPaginator | any;
-    @ViewChild(MatSort) sort: MatSort | any;
+export class BuscarDigimonListaComponent implements OnInit, AfterViewInit, OnDestroy {
+    @ViewChild(MatPaginator) paginator!: MatPaginator;
+    @ViewChild(MatSort) sort!: MatSort;
 
     public displayedColumns: string[] = ['id', 'image', 'name'];
-    public dataSource: MatTableDataSource<any> = new MatTableDataSource();
+    public dataSource: MatTableDataSource<ContentDigimons> = new MatTableDataSource();
+
+    public buscador = new FormControl('');
+
+    public paginado!: paginado;
+    public isLoading: boolean = false;
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -23,9 +31,10 @@ export class BuscarDigimonListaComponent implements OnInit, OnDestroy {
         CONSTRUCTOR
     -------------------------------------------------------------------
     */
-    constructor(private _buscarDigimonListaService: BuscarDigimonListaService) {
-        this._buscarDigimonListaService.getDigimons().subscribe();
-    }
+    constructor(
+        private _changeDetectorRef: ChangeDetectorRef,
+        private _buscarDigimonListaService: BuscarDigimonListaService
+    ) {}
 
     /*
     -------------------------------------------------------------------
@@ -39,9 +48,53 @@ export class BuscarDigimonListaComponent implements OnInit, OnDestroy {
 
             if (!resDigimons) return false;
 
+            this.paginado = this.generatePaginado(resDigimons.pageable);
+
             this.dataSource.data = resDigimons.content;
+
+            this._changeDetectorRef.markForCheck();
+
             return true;
         });
+
+        this.buscador.valueChanges
+            .pipe(
+                takeUntil(this._unsubscribeAll),
+                debounceTime(300),
+                switchMap((query) => {
+                    this.isLoading = true;
+                    return this._buscarDigimonListaService.getDigimons({
+                        page: 0,
+                        pageSize: this.paginator.pageSize,
+                        name: this.buscador.value ?? ''
+                    });
+                }),
+                map(() => {
+                    this.isLoading = false;
+                })
+            )
+            .subscribe();
+    }
+
+    ngAfterViewInit() {
+        if (this.sort && this.paginator) {
+        }
+
+        merge(this.paginator.page)
+            .pipe(
+                startWith({}),
+                switchMap(() => {
+                    this.isLoading = true;
+
+                    this.buscador.reset('', { emitEvent: false });
+
+                    return this._buscarDigimonListaService.getDigimons({
+                        page: this.paginator.pageIndex,
+                        pageSize: this.paginator.pageSize
+                    });
+                })
+            )
+            .subscribe();
     }
 
     ngOnDestroy(): void {
@@ -57,4 +110,24 @@ export class BuscarDigimonListaComponent implements OnInit, OnDestroy {
     public applyFilter(event: any) {
         console.log('🚀 ~ event', event);
     }
+
+    public generatePaginado(pageable: Pageable): paginado {
+        return {
+            currentPage: pageable.currentPage,
+            elementsOnPage: pageable.elementsOnPage,
+            totalElements: pageable.totalElements,
+            totalPages: pageable.totalPages,
+            previousPage: pageable.previousPage,
+            nextPage: pageable.nextPage
+        };
+    }
+}
+
+interface paginado {
+    currentPage: number;
+    elementsOnPage: number;
+    totalElements: number;
+    totalPages: number;
+    previousPage: string;
+    nextPage: string;
 }

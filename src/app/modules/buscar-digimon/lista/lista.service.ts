@@ -1,13 +1,14 @@
+import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, tap } from 'rxjs';
-import { Digimon } from 'src/app/interfaces/digimon/digimon.interface';
-import { DigimonApiService } from 'src/app/services/digimons.service';
+import { Digimons } from 'src/app/interfaces/digimon/digimons.interface';
+import { DigimonApiService, paramsFilterDigimons } from 'src/app/services/digimons.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class BuscarDigimonListaService {
-    private _digimons: BehaviorSubject<any | null> = new BehaviorSubject<Digimon | null>(null);
+    private _digimons: BehaviorSubject<Digimons | null> = new BehaviorSubject<Digimons | null>(null);
     /*
     -------------------------------------------------------------------
         CONSTRUCTOR
@@ -30,10 +31,23 @@ export class BuscarDigimonListaService {
     -------------------------------------------------------------------
     */
 
-    public getDigimons() {
-        return this._digimonApiService.getDigimonList().pipe(
+    public getDigimons(filtros?: paramsFilterDigimons) {
+        let params = new HttpParams();
+
+        let filtrosFin = {
+            ...{
+                page: 0,
+                pageSize: 10
+            },
+            ...filtros
+        };
+
+        Object.entries(filtrosFin).forEach(([key, value]) => {
+            params = params.set(key, value);
+        });
+
+        return this._digimonApiService.getDigimonList(params).pipe(
             tap((resDigimons) => {
-                console.log('🚀 ~ resDigimons', resDigimons);
                 this._digimons.next(resDigimons);
             })
         );
