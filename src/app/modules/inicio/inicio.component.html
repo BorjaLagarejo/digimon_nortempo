@@ -1,7 +1,9 @@
 <div class="flex flex-col items-center gap-8 py-8">
     <h1 class="text-5xl font-bold tracking-tighter text-blue-600 font-display sm:text-8xl"> BIENVENIDO A DIGITERMO </h1>
-
-    <tarjeta-digimon [digimon]="digimonRandom"></tarjeta-digimon>
+    <div>
+        <tarjeta-digimon [digimon]="digimonRandom"></tarjeta-digimon>
+        <mat-progress-bar mode="determinate" [value]="porcentajeCompletado"></mat-progress-bar>
+    </div>
 
     <div class="text-center">
         <div class="flex items-center justify-center mt-10 gap-x-6">

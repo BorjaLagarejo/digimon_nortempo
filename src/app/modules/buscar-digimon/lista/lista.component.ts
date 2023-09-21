@@ -7,6 +7,7 @@ import { Subject, debounceTime, map, merge, of, startWith, switchMap, takeUntil 
 import { ContentDigimons, Pageable } from 'src/app/interfaces/digimon/digimons.interface';
 import { HttpParams } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
+import { ActivatedRoute, Route, Router } from '@angular/router';
 
 @Component({
     templateUrl: './lista.component.html',
@@ -32,6 +33,8 @@ export class BuscarDigimonListaComponent implements OnInit, AfterViewInit, OnDes
     -------------------------------------------------------------------
     */
     constructor(
+        private _router: Router,
+        private _activatedRoute: ActivatedRoute,
         private _changeDetectorRef: ChangeDetectorRef,
         private _buscarDigimonListaService: BuscarDigimonListaService
     ) {}
@@ -77,24 +80,26 @@ export class BuscarDigimonListaComponent implements OnInit, AfterViewInit, OnDes
     }
 
     ngAfterViewInit() {
-        if (this.sort && this.paginator) {
+        if (this.paginator) {
+            merge(this.paginator.page)
+                .pipe(
+                    startWith({}),
+                    switchMap(() => {
+                        this.isLoading = true;
+
+                        this.buscador.reset('', { emitEvent: false });
+
+                        return this._buscarDigimonListaService.getDigimons({
+                            page: this.paginator.pageIndex,
+                            pageSize: this.paginator.pageSize
+                        });
+                    }),
+                    map(() => {
+                        this.isLoading = false;
+                    })
+                )
+                .subscribe();
         }
-
-        merge(this.paginator.page)
-            .pipe(
-                startWith({}),
-                switchMap(() => {
-                    this.isLoading = true;
-
-                    this.buscador.reset('', { emitEvent: false });
-
-                    return this._buscarDigimonListaService.getDigimons({
-                        page: this.paginator.pageIndex,
-                        pageSize: this.paginator.pageSize
-                    });
-                })
-            )
-            .subscribe();
     }
 
     ngOnDestroy(): void {
@@ -120,6 +125,10 @@ export class BuscarDigimonListaComponent implements OnInit, AfterViewInit, OnDes
             previousPage: pageable.previousPage,
             nextPage: pageable.nextPage
         };
+    }
+
+    public goTo(item: ContentDigimons) {
+        this._router.navigate(['./', item.id], { relativeTo: this._activatedRoute });
     }
 }
 

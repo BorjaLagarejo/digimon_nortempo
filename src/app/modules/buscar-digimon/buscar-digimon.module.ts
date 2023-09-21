@@ -1,15 +1,21 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Route, RouterModule } from '@angular/router';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { BuscarDigimonListaComponent } from './lista/lista.component';
 import { BuscarDigimonDetalleComponent } from './detalle/detalle.component';
 
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatCardModule } from '@angular/material/card';
+
 import { buscarDigimonListaResolver } from './lista/lista.resolver';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { detalleResolver as buscarDigimonDetalleResolver } from './detalle/detalle.resolver';
 
 export const buscarDigimonRoute: Route[] = [
     {
@@ -21,7 +27,10 @@ export const buscarDigimonRoute: Route[] = [
     },
     {
         path: ':id',
-        component: BuscarDigimonDetalleComponent
+        component: BuscarDigimonDetalleComponent,
+        resolve: {
+            detalle: buscarDigimonDetalleResolver
+        }
     }
 ];
 
@@ -34,9 +43,13 @@ export const buscarDigimonRoute: Route[] = [
         FormsModule,
         ReactiveFormsModule,
 
+        MatCardModule,
         MatInputModule,
         MatTableModule,
-        MatPaginatorModule
+        MatTooltipModule,
+        MatSidenavModule,
+        MatPaginatorModule,
+        MatProgressBarModule
     ]
 })
 export class BuscarDigimonModule {}

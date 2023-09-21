@@ -1,1 +1,147 @@
-<p>detalle works!</p>
+<div class="absolute inset-0 flex flex-col min-w-0 overflow-hidden">
+    <mat-drawer-container class="flex-auto h-full">
+        <!-- Drawer -->
+        <mat-drawer class="bg-gray-900 w-100" [autoFocus]="false" [mode]="'side'" [opened]="drawerOpen" #matDrawer>
+            <ng-container *ngFor="let image of outDigimon.images">
+                <img class="sm:w-full" [src]="image.href" alt="" />
+            </ng-container>
+        </mat-drawer>
+
+        <!-- Drawer content -->
+        <mat-drawer-content class="flex flex-col overflow-hidden">
+            <!-- Cabecera -->
+            <div
+                class="sticky top-0 flex flex-col p-6 border-b sm:flex-row flex-0 sm:items-center sm:justify-between sm:py-8 sm:px-10 bg-card dark:bg-transparent bg-gradient-to-r from-violet-500 to-fuchsia-500">
+                <div class="flex-1 min-w-0">
+                    <!-- Title -->
+                    <div class="mt-2">
+                        <h2 class="text-3xl font-bold leading-7 truncate md:text-4xl text-slate-100 sm:leading-10">
+                            {{ outDigimon.name }}
+                        </h2>
+                        <h6 class="text-white"> Se publico en {{ outDigimon.releaseDate }} </h6>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Principal -->
+            <div class="flex-auto p-6 overflow-y-auto sm:p-10">
+                <div class="flex flex-col gap-8 px-6 xl:w-3/4">
+                    <!-- Descripción  -->
+                    <div class="flex flex-col gap-3 md:flex-row">
+                        <img *ngIf="!drawerOpen" class="h-auto max-w-full" [src]="outDigimon.images[0].href" alt="" />
+                        <div class="flex flex-col gap-3">
+                            <h2 class="text-2xl font-medium leading-7 text-zinc-800"> Descripción </h2>
+                            <hr />
+                            <p class="text-justify">
+                                {{ getDescriptions(outDigimon) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Atributos, Niveles, Tipos & Habilidades   -->
+                    <div class="grid grid-cols-2 gap-6 md:grid-cols-4">
+                        <div class="flex flex-col gap-3">
+                            <h2 class="text-2xl font-medium leading-7 text-zinc-800"> Atributos </h2>
+                            <hr />
+                            <ul class="ml-5 list-disc">
+                                <li *ngFor="let attribute of outDigimon.attributes">
+                                    {{ attribute.attribute }}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <h2 class="text-2xl font-medium leading-7 text-zinc-800"> Niveles </h2>
+                            <hr />
+                            <ul class="ml-5 list-disc">
+                                <li *ngFor="let level of outDigimon.levels">
+                                    {{ level.level }}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <h2 class="text-2xl font-medium leading-7 text-zinc-800"> Tipos </h2>
+                            <hr />
+                            <ul class="ml-5 list-disc">
+                                <li *ngFor="let type of outDigimon.types">
+                                    {{ type.type }}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <h2 class="text-2xl font-medium leading-7 text-zinc-800"> Habilidades </h2>
+                            <hr />
+                            <ul class="ml-5 list-disc">
+                                <li *ngFor="let skill of outDigimon.skills">
+                                    {{ skill.skill }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Campos -->
+                    <div class="flex flex-col gap-3">
+                        <h2 class="text-2xl font-medium leading-7 text-zinc-800"> Campos </h2>
+                        <hr />
+
+                        <div class="flex gap-3">
+                            <ng-container *ngFor="let field of outDigimon.fields">
+                                <img
+                                    class="w-12 cursor-help"
+                                    [src]="field.image"
+                                    [alt]="field.name"
+                                    [matTooltip]="field.field" />
+                            </ng-container>
+                        </div>
+                    </div>
+
+                    <!-- Siguiente evolución -->
+
+                    <div class="flex flex-col gap-3">
+                        <h2 class="text-2xl font-medium leading-7 text-zinc-800"> Siguiente evolución </h2>
+                        <hr />
+
+                        <div class="flex w-full gap-8 overflow-y-auto">
+                            <ng-container *ngFor="let digimon of outDigimon.nextEvolutions">
+                                <div class="flex flex-col max-w-xs shadow-md filter-article">
+                                    <img [src]="digimon.image" [alt]="digimon.digimon" />
+                                    <hr class="w-72" />
+                                    <div class="px-2 py-5 bg-white">
+                                        <h4 class="text-xl font-normal leading-tight truncate">
+                                            {{ digimon.digimon }}
+                                        </h4>
+                                        <h6 class="mt-4 text-base font-thin">
+                                            {{ digimon.condition }}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </div>
+                    </div>
+
+                    <!-- Anterior evolución -->
+                    <div class="flex flex-col gap-3">
+                        <h2 class="text-2xl font-medium leading-7 text-zinc-800"> Siguiente evolución </h2>
+                        <hr />
+
+                        <div class="flex w-full gap-8 overflow-y-auto">
+                            <ng-container *ngFor="let digimon of outDigimon.priorEvolutions">
+                                <div class="flex flex-col max-w-xs shadow-md filter-article">
+                                    <img [src]="digimon.image" [alt]="digimon.digimon" />
+                                    <hr class="w-72" />
+                                    <div class="px-2 py-5 bg-white">
+                                        <h4 class="text-xl font-normal leading-tight truncate">
+                                            {{ digimon.digimon }}
+                                        </h4>
+                                        <h6 class="mt-4 text-base font-thin">
+                                            {{ digimon.condition }}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </mat-drawer-content>
+    </mat-drawer-container>
+</div>
