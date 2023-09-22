@@ -10,9 +10,9 @@
                             <ng-container *ngFor="let item of menu">
                                 <a
                                     href="#"
-                                    class="px-3 py-2 text-sm font-medium text-white rounded-md hover:bg-gray-700"
+                                    class="px-3 py-2 text-base font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white"
                                     [routerLink]="item.path"
-                                    routerLinkActive="bg-gray-900"
+                                    routerLinkActive="bg-gray-900 text-white"
                                     aria-current="page">
                                     {{ item.titulo }}
                                 </a>

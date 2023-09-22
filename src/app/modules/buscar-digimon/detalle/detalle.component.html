@@ -12,7 +12,14 @@
             <!-- Cabecera -->
             <div
                 class="sticky top-0 flex flex-col p-6 border-b sm:flex-row flex-0 sm:items-center sm:justify-between sm:py-8 sm:px-10 bg-card dark:bg-transparent bg-gradient-to-r from-violet-500 to-fuchsia-500">
-                <div class="flex-1 min-w-0">
+                <div class="flex items-center flex-1 min-w-0 gap-3">
+                    <a class="inline-flex items-center leading-6 text-primary hover:underline" [routerLink]="['..']">
+                        <button mat-icon-button>
+                            <mat-icon
+                                class="text-current text-white icon-size-7"
+                                [svgIcon]="'mat_outline:arrow_back'"></mat-icon>
+                        </button>
+                    </a>
                     <!-- Title -->
                     <div class="mt-2">
                         <h2 class="text-3xl font-bold leading-7 truncate md:text-4xl text-slate-100 sm:leading-10">
@@ -149,3 +156,8 @@
         </mat-drawer-content>
     </mat-drawer-container>
 </div>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+</style>

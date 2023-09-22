@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { appRoutes } from './app.routing';
 import { NavigationModule } from './components/navigation/navigation.module';
+import { CoreModule } from './core/core.module';
 
 @NgModule({
     declarations: [AppComponent],
@@ -15,6 +16,7 @@ import { NavigationModule } from './components/navigation/navigation.module';
         BrowserAnimationsModule,
         RouterModule.forRoot(appRoutes),
 
+        CoreModule,
         NavigationModule,
 
         HttpClientModule
