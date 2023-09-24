@@ -3,5 +3,8 @@ import { ResolveFn } from '@angular/router';
 import { BuscarDigimonListaService } from './lista.service';
 
 export const buscarDigimonListaResolver: ResolveFn<any> = (route, state) => {
-    return inject(BuscarDigimonListaService).getDigimons();
+    console.log('🚀 ~ route', route);
+    const queryParam = route.queryParams;
+
+    return inject(BuscarDigimonListaService).getDigimons(queryParam);
 };

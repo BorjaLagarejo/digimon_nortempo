@@ -1,7 +1,8 @@
-import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { BuscarDigimonDetalleService } from './detalle.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Digimon } from 'src/app/interfaces/digimon/digimon.interface';
+import { Location } from '@angular/common';
 
 @Component({
     templateUrl: './detalle.component.html',
@@ -20,10 +21,7 @@ export class BuscarDigimonDetalleComponent implements OnInit, OnDestroy {
       CONSTRUCTOR
   -------------------------------------------------------------------
   */
-    constructor(
-        private _changeDetectorRef: ChangeDetectorRef,
-        private _buscarDigimonDetalleService: BuscarDigimonDetalleService
-    ) {}
+    constructor(private _location: Location, private _buscarDigimonDetalleService: BuscarDigimonDetalleService) {}
 
     /*
   -------------------------------------------------------------------
@@ -52,13 +50,17 @@ export class BuscarDigimonDetalleComponent implements OnInit, OnDestroy {
     -------------------------------------------------------------------
     */
 
-    getDescriptions(digimon: Digimon) {
+    public getDescriptions(digimon: Digimon) {
         return digimon.descriptions.find((d) => d.language === 'en_us')?.description ?? '';
     }
 
     // Utiliza el decorador HostListener para escuchar el evento de cambio de tamaño de la ventana
     @HostListener('window:resize', ['$event'])
-    onResize() {
+    public onResize() {
         this.drawerOpen = window.innerWidth > 1200;
+    }
+
+    public navigateBack() {
+        this._location.back();
     }
 }

@@ -22,6 +22,9 @@ import { MatSelectModule } from '@angular/material/select';
 export const buscarDigimonRoute: Route[] = [
     {
         path: '',
+        data: {
+            title: 'Buscador'
+        },
         component: BuscarDigimonListaComponent,
         resolve: {
             lista: buscarDigimonListaResolver
@@ -30,6 +33,9 @@ export const buscarDigimonRoute: Route[] = [
     {
         path: ':id',
         component: BuscarDigimonDetalleComponent,
+        data: {
+            title: 'Detalle'
+        },
         resolve: {
             detalle: buscarDigimonDetalleResolver
         }

@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { BuscarDigimonListaService } from './lista.service';
 import { Subject, debounceTime, forkJoin, map, takeUntil, tap } from 'rxjs';
@@ -17,7 +16,6 @@ import { LevelsField } from 'src/app/interfaces/digimon/levels.interface';
 })
 export class BuscarDigimonListaComponent implements OnInit, OnDestroy {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
-    @ViewChild(MatSort) sort!: MatSort;
 
     public displayedColumns: string[] = ['id', 'image', 'name'];
     public dataSource: MatTableDataSource<ContentDigimons> = new MatTableDataSource();
@@ -36,6 +34,7 @@ export class BuscarDigimonListaComponent implements OnInit, OnDestroy {
         levels: LevelsField[];
     };
 
+    private filtroParams: any;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     /*
@@ -58,6 +57,8 @@ export class BuscarDigimonListaComponent implements OnInit, OnDestroy {
     */
 
     ngOnInit(): void {
+        this.cargarFiltrosAnteriores();
+
         forkJoin({
             attributes: this._digimonApiService.getAttributes().pipe(map((res) => res.content.fields)),
             levels: this._digimonApiService.getLevels().pipe(map((res) => res.content.fields))
@@ -68,7 +69,7 @@ export class BuscarDigimonListaComponent implements OnInit, OnDestroy {
         this._buscarDigimonListaService.digimons$.pipe(takeUntil(this._unsubscribeAll)).subscribe((resDigimons) => {
             if (!resDigimons) return false;
 
-            this.paginado = this.generatePaginado(resDigimons.pageable);
+            this.generatePaginado(resDigimons.pageable);
 
             this.dataSource.data = resDigimons.content;
 
@@ -99,42 +100,63 @@ export class BuscarDigimonListaComponent implements OnInit, OnDestroy {
         this.realizarBusqueda().subscribe();
     }
 
-    public generatePaginado(pageable: Pageable): paginado {
-        return {
+    public generatePaginado(pageable: Pageable) {
+        this.paginado = {
             currentPage: pageable.currentPage,
             elementsOnPage: pageable.elementsOnPage,
             totalElements: pageable.totalElements,
             totalPages: pageable.totalPages,
             previousPage: pageable.previousPage,
-            nextPage: pageable.nextPage
+            nextPage: pageable.nextPage,
+            pageSize: this.filtroParams.pageSize
         };
+
+        this._changeDetectorRef.markForCheck();
     }
 
     public goTo(item: ContentDigimons) {
         this._router.navigate(['./', item.id], { relativeTo: this._activatedRoute });
     }
 
+    /*
+    -------------------------------------------------------------------
+        METODOS PRIVADOS
+    -------------------------------------------------------------------
+    */
+
     private realizarBusqueda() {
         this.isLoading = true;
 
-        const filtroParams: any = {
+        this.filtroParams = {
             page: this.paginator.pageIndex,
             pageSize: this.paginator.pageSize
         };
 
         if (this.filtros.value.name) {
-            filtroParams.name = this.filtros.value.name;
+            this.filtroParams.name = this.filtros.value.name;
         }
 
         if (this.filtros.value.attribute) {
-            filtroParams.attribute = this.filtros.value.attribute;
+            this.filtroParams.attribute = this.filtros.value.attribute;
         }
 
         if (this.filtros.value.level) {
-            filtroParams.level = this.filtros.value.level;
+            this.filtroParams.level = this.filtros.value.level;
         }
 
-        return this._buscarDigimonListaService.getDigimons(filtroParams).pipe(tap((res) => (this.isLoading = false)));
+        this._router.navigate(['./'], { relativeTo: this._activatedRoute, queryParams: this.filtroParams });
+
+        return this._buscarDigimonListaService
+            .getDigimons(this.filtroParams)
+            .pipe(tap((res) => (this.isLoading = false)));
+    }
+
+    private cargarFiltrosAnteriores() {
+        this.filtroParams = this._activatedRoute.snapshot.queryParams;
+
+        this.filtros.controls.name.setValue(this.filtroParams.name, { emitEvent: false });
+        this.filtros.controls.attribute.setValue(this.filtroParams.attribute, { emitEvent: false });
+        this.filtros.controls.level.setValue(this.filtroParams.level, { emitEvent: false });
     }
 }
 
@@ -145,4 +167,5 @@ interface paginado {
     totalPages: number;
     previousPage: string;
     nextPage: string;
+    pageSize: number;
 }
