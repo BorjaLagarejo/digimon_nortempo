@@ -3,7 +3,7 @@
         <!-- Drawer -->
         <mat-drawer class="bg-gray-900 w-100" [autoFocus]="false" [mode]="'side'" [opened]="drawerOpen" #matDrawer>
             <ng-container *ngFor="let image of outDigimon.images">
-                <img class="sm:w-full" [src]="image.href" alt="" />
+                <img class="sm:w-full" [src]="image.href" [alt]="outDigimon.name" />
             </ng-container>
         </mat-drawer>
 
@@ -14,7 +14,7 @@
                 class="sticky top-0 flex flex-col p-6 border-b sm:flex-row flex-0 sm:items-center sm:justify-between sm:py-8 sm:px-10 bg-card dark:bg-transparent bg-gradient-to-r from-violet-500 to-fuchsia-500">
                 <div class="flex items-center flex-1 min-w-0 gap-3">
                     <a class="inline-flex items-center leading-6 text-primary hover:underline" [routerLink]="['..']">
-                        <button mat-icon-button>
+                        <button mat-icon-button type="button">
                             <mat-icon
                                 class="text-current text-white icon-size-7"
                                 [svgIcon]="'mat_outline:arrow_back'"></mat-icon>
@@ -25,7 +25,7 @@
                         <h2 class="text-3xl font-bold leading-7 truncate md:text-4xl text-slate-100 sm:leading-10">
                             {{ outDigimon.name }}
                         </h2>
-                        <h6 class="text-white"> Se publico en {{ outDigimon.releaseDate }} </h6>
+                        <h3 class="text-white"> Se publico en {{ outDigimon.releaseDate }} </h3>
                     </div>
                 </div>
             </div>
@@ -35,7 +35,11 @@
                 <div class="flex flex-col gap-8 px-6 xl:w-3/4">
                     <!-- Descripción  -->
                     <div class="flex flex-col gap-3 md:flex-row">
-                        <img *ngIf="!drawerOpen" class="h-auto max-w-full" [src]="outDigimon.images[0].href" alt="" />
+                        <img
+                            *ngIf="!drawerOpen"
+                            class="h-auto max-w-full"
+                            [src]="outDigimon.images[0].href"
+                            [alt]="outDigimon.name" />
                         <div class="flex flex-col gap-3">
                             <h2 class="text-2xl font-medium leading-7 text-zinc-800"> Descripción </h2>
                             <hr />
@@ -118,9 +122,9 @@
                                                 {{ digimon.digimon }}
                                             </h4>
                                         </a>
-                                        <h6 class="mt-4 text-base font-thin">
+                                        <h4 class="mt-4 text-base font-thin">
                                             {{ digimon.condition }}
-                                        </h6>
+                                        </h4>
                                     </div>
                                 </div>
                             </ng-container>
@@ -143,9 +147,9 @@
                                                 {{ digimon.digimon }}
                                             </h4>
                                         </a>
-                                        <h6 class="mt-4 text-base font-thin">
+                                        <h4 class="mt-4 text-base font-thin">
                                             {{ digimon.condition }}
-                                        </h6>
+                                        </h4>
                                     </div>
                                 </div>
                             </ng-container>

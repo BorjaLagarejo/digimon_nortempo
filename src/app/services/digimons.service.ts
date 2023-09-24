@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Digimon } from '../interfaces/digimon/digimon.interface';
 import { Digimons } from '../interfaces/digimon/digimons.interface';
+import { Attributes } from '../interfaces/digimon/attributes.interface';
+import { Levels } from '../interfaces/digimon/levels.interface';
 
 @Injectable({
     providedIn: 'root'
@@ -43,7 +45,7 @@ export class DigimonApiService {
     public getAttributes() {
         const url = `${this.apiHost}/attribute`;
 
-        return this._http.get(url);
+        return this._http.get<Attributes>(url);
     }
 
     /**
@@ -89,7 +91,7 @@ export class DigimonApiService {
     public getLevels() {
         const url = `${this.apiHost}/level`;
 
-        return this._http.get(url);
+        return this._http.get<Levels>(url);
     }
 
     /**
@@ -155,4 +157,6 @@ export interface paramsFilterDigimons {
     page?: number;
     pageSize?: number;
     name?: string;
+    attribute?: string;
+    level?: string;
 }

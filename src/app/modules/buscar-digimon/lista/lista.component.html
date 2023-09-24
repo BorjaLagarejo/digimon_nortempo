@@ -9,11 +9,29 @@
         <!-- Title -->
         <div class="text-4xl font-extrabold tracking-tight">Digimons</div>
         <!-- Actions -->
-        <div class="flex items-center mt-6 shrink-0 sm:mt-0 sm:ml-4">
+        <div class="flex items-center gap-3 mt-6 shrink-0 sm:mt-0 sm:ml-4" [formGroup]="filtros">
             <!-- Search -->
-            <mat-form-field class="fuse-mat-dense fuse-mat-rounded min-w-64" [subscriptSizing]="'dynamic'">
+            <mat-form-field>
                 <!-- <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:search'"></mat-icon> -->
-                <input matInput [formControl]="buscador" [autocomplete]="'off'" [placeholder]="'Buscar por nombre'" />
+                <input matInput formControlName="name" [autocomplete]="'off'" [placeholder]="'Buscar por nombre'" />
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Atributos</mat-label>
+                <mat-select formControlName="attribute" name="attribute">
+                    <mat-option *ngFor="let attribute of outMetadata?.attributes" [value]="attribute.name">
+                        {{ attribute.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Nivel</mat-label>
+                <mat-select formControlName="level" name="level">
+                    <mat-option *ngFor="let level of outMetadata?.levels" [value]="level.name">
+                        {{ level.name }}
+                    </mat-option>
+                </mat-select>
             </mat-form-field>
         </div>
     </div>
@@ -55,6 +73,7 @@
     </div>
     <mat-paginator
         *ngIf="paginado"
+        (page)="eventPaginator($event)"
         [length]="paginado.totalElements"
         [pageIndex]="paginado.currentPage"
         [showFirstLastButtons]="true"

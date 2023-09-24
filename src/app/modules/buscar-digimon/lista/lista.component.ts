@@ -1,29 +1,40 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource, MatTableDataSourcePaginator } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { BuscarDigimonListaService } from './lista.service';
-import { Subject, debounceTime, map, merge, of, startWith, switchMap, takeUntil } from 'rxjs';
+import { Subject, debounceTime, forkJoin, map, takeUntil, tap } from 'rxjs';
 import { ContentDigimons, Pageable } from 'src/app/interfaces/digimon/digimons.interface';
-import { HttpParams } from '@angular/common/http';
-import { FormControl } from '@angular/forms';
-import { ActivatedRoute, Route, Router } from '@angular/router';
+import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { DigimonApiService } from 'src/app/services/digimons.service';
+import { AttributesField } from 'src/app/interfaces/digimon/attributes.interface';
+import { LevelsField } from 'src/app/interfaces/digimon/levels.interface';
 
 @Component({
     templateUrl: './lista.component.html',
     styleUrls: ['./lista.component.scss']
 })
-export class BuscarDigimonListaComponent implements OnInit, AfterViewInit, OnDestroy {
+export class BuscarDigimonListaComponent implements OnInit, OnDestroy {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
     public displayedColumns: string[] = ['id', 'image', 'name'];
     public dataSource: MatTableDataSource<ContentDigimons> = new MatTableDataSource();
 
-    public buscador = new FormControl('');
+    public filtros = new FormGroup({
+        name: new FormControl(),
+        attribute: new FormControl(),
+        level: new FormControl()
+    });
 
     public paginado!: paginado;
     public isLoading: boolean = false;
+
+    public outMetadata!: {
+        attributes: AttributesField[];
+        levels: LevelsField[];
+    };
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -35,6 +46,7 @@ export class BuscarDigimonListaComponent implements OnInit, AfterViewInit, OnDes
     constructor(
         private _router: Router,
         private _activatedRoute: ActivatedRoute,
+        private _digimonApiService: DigimonApiService,
         private _changeDetectorRef: ChangeDetectorRef,
         private _buscarDigimonListaService: BuscarDigimonListaService
     ) {}
@@ -46,9 +58,14 @@ export class BuscarDigimonListaComponent implements OnInit, AfterViewInit, OnDes
     */
 
     ngOnInit(): void {
-        this._buscarDigimonListaService.digimons$.pipe(takeUntil(this._unsubscribeAll)).subscribe((resDigimons) => {
-            console.log('🚀 ~ resDigimons', resDigimons);
+        forkJoin({
+            attributes: this._digimonApiService.getAttributes().pipe(map((res) => res.content.fields)),
+            levels: this._digimonApiService.getLevels().pipe(map((res) => res.content.fields))
+        }).subscribe((resMetadata) => {
+            this.outMetadata = resMetadata;
+        });
 
+        this._buscarDigimonListaService.digimons$.pipe(takeUntil(this._unsubscribeAll)).subscribe((resDigimons) => {
             if (!resDigimons) return false;
 
             this.paginado = this.generatePaginado(resDigimons.pageable);
@@ -60,46 +77,12 @@ export class BuscarDigimonListaComponent implements OnInit, AfterViewInit, OnDes
             return true;
         });
 
-        this.buscador.valueChanges
-            .pipe(
-                takeUntil(this._unsubscribeAll),
-                debounceTime(300),
-                switchMap((query) => {
-                    this.isLoading = true;
-                    return this._buscarDigimonListaService.getDigimons({
-                        page: 0,
-                        pageSize: this.paginator.pageSize,
-                        name: this.buscador.value ?? ''
-                    });
-                }),
-                map(() => {
-                    this.isLoading = false;
-                })
-            )
-            .subscribe();
-    }
+        this.filtros.valueChanges.pipe(debounceTime(300)).subscribe((res) => {
+            // Se reinicia el paginado
+            this.paginator.pageIndex = 0;
 
-    ngAfterViewInit() {
-        if (this.paginator) {
-            merge(this.paginator.page)
-                .pipe(
-                    startWith({}),
-                    switchMap(() => {
-                        this.isLoading = true;
-
-                        this.buscador.reset('', { emitEvent: false });
-
-                        return this._buscarDigimonListaService.getDigimons({
-                            page: this.paginator.pageIndex,
-                            pageSize: this.paginator.pageSize
-                        });
-                    }),
-                    map(() => {
-                        this.isLoading = false;
-                    })
-                )
-                .subscribe();
-        }
+            this.realizarBusqueda().subscribe();
+        });
     }
 
     ngOnDestroy(): void {
@@ -112,8 +95,8 @@ export class BuscarDigimonListaComponent implements OnInit, AfterViewInit, OnDes
         METODOS PUBLICOS
     -------------------------------------------------------------------
     */
-    public applyFilter(event: any) {
-        console.log('🚀 ~ event', event);
+    public eventPaginator(event: PageEvent) {
+        this.realizarBusqueda().subscribe();
     }
 
     public generatePaginado(pageable: Pageable): paginado {
@@ -129,6 +112,29 @@ export class BuscarDigimonListaComponent implements OnInit, AfterViewInit, OnDes
 
     public goTo(item: ContentDigimons) {
         this._router.navigate(['./', item.id], { relativeTo: this._activatedRoute });
+    }
+
+    private realizarBusqueda() {
+        this.isLoading = true;
+
+        const filtroParams: any = {
+            page: this.paginator.pageIndex,
+            pageSize: this.paginator.pageSize
+        };
+
+        if (this.filtros.value.name) {
+            filtroParams.name = this.filtros.value.name;
+        }
+
+        if (this.filtros.value.attribute) {
+            filtroParams.attribute = this.filtros.value.attribute;
+        }
+
+        if (this.filtros.value.level) {
+            filtroParams.level = this.filtros.value.level;
+        }
+
+        return this._buscarDigimonListaService.getDigimons(filtroParams).pipe(tap((res) => (this.isLoading = false)));
     }
 }
 

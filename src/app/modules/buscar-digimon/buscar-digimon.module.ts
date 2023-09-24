@@ -17,6 +17,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { buscarDigimonListaResolver } from './lista/lista.resolver';
 import { detalleResolver as buscarDigimonDetalleResolver } from './detalle/detalle.resolver';
+import { MatSelectModule } from '@angular/material/select';
 
 export const buscarDigimonRoute: Route[] = [
     {
@@ -48,6 +49,7 @@ export const buscarDigimonRoute: Route[] = [
         MatInputModule,
         MatTableModule,
         MatButtonModule,
+        MatSelectModule,
         MatTooltipModule,
         MatSidenavModule,
         MatPaginatorModule,

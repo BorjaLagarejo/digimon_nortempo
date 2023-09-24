@@ -3,12 +3,12 @@
     <div class="flex flex-col items-center p-6 sm:p-10">
         <div class="flex flex-col w-full max-w-4xl">
             <div class="mt-2 text-4xl font-extrabold leading-tight tracking-tight sm:text-7xl"> Necesitas Ayuda </div>
-            <ng-container *ngFor="let faqCategory of faqCategorias; trackBy: trackByFn">
+            <ng-container *ngFor="let faqCategory of faqCategorias">
                 <div class="mt-12 text-3xl font-bold leading-tight tracking-tight sm:mt-16">{{
                     faqCategory.titulo
                 }}</div>
                 <mat-accordion class="max-w-4xl mt-8">
-                    <ng-container *ngFor="let faq of faqCategory.faqs; trackBy: trackByFn">
+                    <ng-container *ngFor="let faq of faqCategory.faqs">
                         <mat-expansion-panel>
                             <mat-expansion-panel-header [collapsedHeight]="'56px'">
                                 <mat-panel-title class="font-medium leading-tight">{{ faq.pregunta }}</mat-panel-title>
